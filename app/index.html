@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fashion Stylist</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --secondary: #ff1493;
+            --bg-color: #0f1016;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(138, 43, 226, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 20, 147, 0.15), transparent 25%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: floatIn 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes floatIn {
+            0% { transform: translateY(40px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        p.subtitle {
+            color: #a0a4b8;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 50px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--secondary);
+            background: rgba(255, 20, 147, 0.05);
+            transform: translateY(-2px);
+        }
+        #file-input {
+            display: none;
+        }
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 15px 35px;
+            color: white;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 30px;
+            box-shadow: 0 10px 20px rgba(255, 20, 147, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 25px rgba(255, 20, 147, 0.4);
+        }
+        .btn:disabled {
+            background: #333;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #preview {
+            max-width: 100%;
+            max-height: 250px;
+            margin-top: 20px;
+            border-radius: 12px;
+            display: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease-out;
+        }
+        .results {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .item-category {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .item-desc {
+            color: #a0a4b8;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .confidence {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Fashion Stylist</h1>
+    <p class="subtitle">Upload a photo to discover your perfect matching items</p>
+    
+    <div class="upload-area" id="upload-box">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#8a2be2" />
+                    <stop offset="100%" stop-color="#ff1493" />
+                </linearGradient>
+            </defs>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <h3 style="margin: 0; color: #fff; font-weight: 400;">Drag & Drop an image here</h3>
+        <p style="color: #a0a4b8; font-size: 0.9rem; margin-top: 10px;">or click to browse from your device</p>
+        <img id="preview" src="" alt="Image Preview">
+    </div>
+    
+    <input type="file" id="file-input" accept="image/*">
+    <button class="btn" id="analyze-btn" disabled>Analyze My Style</button>
+    
+    <div class="loader" id="loader"></div>
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+    const box = document.getElementById('upload-box');
+    const input = document.getElementById('file-input');
+    const preview = document.getElementById('preview');
+    const btn = document.getElementById('analyze-btn');
+    const loader = document.getElementById('loader');
+    const results = document.getElementById('results');
+    
+    let selectedFile = null;
+
+    box.addEventListener('click', () => input.click());
+    
+    box.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        box.classList.add('dragover');
+    });
+    
+    box.addEventListener('dragleave', () => box.classList.remove('dragover'));
+    
+    box.addEventListener('drop', (e) => {
+        e.preventDefault();
+        box.classList.remove('dragover');
+        if(e.dataTransfer.files.length) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    input.addEventListener('change', (e) => {
+        if(e.target.files.length) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        if(!file.type.startsWith('image/')) {
+            alert('Please upload an image file.');
+            return;
+        }
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'inline-block';
+            box.querySelector('h3').style.display = 'none';
+            box.querySelector('p').style.display = 'none';
+            box.querySelector('svg').style.display = 'none';
+            btn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+        results.style.opacity = '0';
+        results.innerHTML = '';
+    }
+
+    btn.addEventListener('click', async () => {
+        if(!selectedFile) return;
+        
+        const fd = new FormData();
+        fd.append('file', selectedFile);
+        
+        btn.style.display = 'none';
+        loader.style.display = 'block';
+        results.style.opacity = '0';
+
+        try {
+            const res = await fetch('/recommend', { method: 'POST', body: fd });
+            if(!res.ok) throw new Error('API Error');
+            const data = await res.json();
+            
+            let html = '';
+            data.items.forEach((item, i) => {
+                let colorHex = item.color.toLowerCase() === 'white' ? '#f0f0f0' : item.color.toLowerCase();
+                html += `
+                <div class="result-card" style="animation: fadeIn 0.5s ease-out ${i * 0.15}s both;">
+                    <div class="item-category">
+                        <span class="color-dot" style="background-color: ${colorHex}"></span>
+                        ${item.category}
+                    </div>
+                    <div class="item-desc">${item.description}</div>
+                    <div class="confidence">Confidence: ${(item.confidence * 100).toFixed(0)}%</div>
+                </div>`;
+            });
+            results.innerHTML = html;
+            results.style.opacity = '1';
+        } catch (err) {
+            alert('Failed to analyze image.');
+            console.error(err);
+        } finally {
+            loader.style.display = 'none';
+            btn.style.display = 'inline-block';
+        }
+    });
+</script>
+</body>
+</html>

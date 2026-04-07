@@ -1,4 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import HTMLResponse
+import os
 from app.schemas import RecommendationResponse
 from app.model import FashionRecommender
 
@@ -11,9 +13,12 @@ app = FastAPI(
 # Initialize the mock ML model logic
 recommender = FashionRecommender()
 
-@app.get("/")
-def read_root():
-    return {"message": "Fashion Recommendation API is running. Check /docs for interactive testing."}
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    file_path = os.path.join(os.path.dirname(__file__), "index.html")
+    with open(file_path, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    return html_content
 
 @app.post("/recommend", response_model=RecommendationResponse)
 async def get_recommendation(file: UploadFile = File(...)):
