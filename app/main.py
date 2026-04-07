@@ -17,9 +17,9 @@ def read_root():
 
 @app.post("/recommend", response_model=RecommendationResponse)
 async def get_recommendation(file: UploadFile = File(...)):
-    \"\"\"
+    """
     Upload an image of clothing, and receive fashion recommendations.
-    \"\"\"
+    """
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Uploaded file is not an image.")
     

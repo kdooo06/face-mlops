@@ -10,9 +10,9 @@ class FashionRecommender:
         self.colors = ["Black", "White", "Navy", "Beige", "Red"]
 
     def predict(self, image_bytes: bytes) -> list[RecommendationItem]:
-        \"\"\"
+        """
         Process the image and return recommendations.
-        \"\"\"
+        """
         # Convert bytes to PIL Image just to verify that it's a valid image
         try:
             image = Image.open(io.BytesIO(image_bytes))
