@@ -39,3 +39,25 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:latest
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:buildcache,mode=max
+
+  deploy:
+    name: Deploy to Local Computer (Self-Hosted)
+    runs-on: self-hosted
+    needs: build-and-push
+    if: github.event_name != 'pull_request'
+    
+    steps:
+      - name: Log in to Docker Hub (Local)
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        
+      - name: Pull Latest Docker Image
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:latest
+        
+      - name: Stop and Remove Old Container
+        continue-on-error: true
+        run: |
+          docker stop fashion-server
+          docker rm fashion-server
+          
+      - name: Run New Container
+        run: docker run -d -p 8000:8000 --name fashion-server --restart always ${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:latest

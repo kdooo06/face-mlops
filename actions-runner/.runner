@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 2,
+  "agentName": "김도윤",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus6.actions.githubusercontent.com/az5zoppdh5OH5Pz3wCc3ANM9G2cejyekf45GUgoi7wJ6iSN3Jp/",
+  "gitHubUrl": "https://github.com/kdooo06/face-mlops",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}
