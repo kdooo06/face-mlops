@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "kdooo06/face-mlops",
+  "pipelineDirectory": "face-mlops",
+  "workspaceDirectory": "face-mlops\\face-mlops",
+  "repositories": {
+    "kdooo06/face-mlops": {
+      "repositoryPath": "face-mlops\\face-mlops",
+      "lastRunOn": "04/08/2026 02:36:17 +09:00"
+    }
+  },
+  "lastRunOn": "04/08/2026 02:38:47 +09:00"
+}

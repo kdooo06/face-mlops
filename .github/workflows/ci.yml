@@ -55,9 +55,11 @@ jobs:
         
       - name: Stop and Remove Old Container
         continue-on-error: true
+        shell: cmd
         run: |
           docker stop fashion-server
           docker rm fashion-server
+          exit 0
           
       - name: Run New Container
         run: docker run -d -p 8000:8000 --name fashion-server --restart always ${{ secrets.DOCKERHUB_USERNAME }}/fashion_mlops:latest
